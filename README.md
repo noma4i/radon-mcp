@@ -24,6 +24,14 @@ This server provides tools for debugging React Native applications through Claud
 ## Installation
 
 ```bash
+# Via npm (recommended)
+npm install -g @noma4i/radon-mcp
+
+# Or run directly with npx/bunx
+npx @noma4i/radon-mcp
+bunx @noma4i/radon-mcp
+
+# From source
 git clone https://github.com/noma4i/radon-mcp
 cd radon-mcp
 bun install
@@ -38,8 +46,21 @@ Add to your Claude Code MCP configuration (`~/.claude.json` or project `.mcp.jso
 {
   "mcpServers": {
     "radon": {
-      "command": "bun",
-      "args": ["/path/to/radon-mcp/dist/index.js"]
+      "command": "bunx",
+      "args": ["@noma4i/radon-mcp"]
+    }
+  }
+}
+```
+
+Or with npx:
+
+```json
+{
+  "mcpServers": {
+    "radon": {
+      "command": "npx",
+      "args": ["@noma4i/radon-mcp"]
     }
   }
 }

@@ -1,9 +1,19 @@
 {
-  "name": "radon-mcp",
-  "version": "0.2.0",
+  "name": "@noma4i/radon-mcp",
+  "version": "1.0.0",
   "description": "MCP server for Radon IDE integration with React Native debugging",
   "type": "module",
   "main": "dist/index.js",
+  "bin": {
+    "radon-mcp": "dist/index.js"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "bun scripts/build.js",
     "build:watch": "bun scripts/build.js --watch",

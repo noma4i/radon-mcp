@@ -1,5 +1,6 @@
 import { request } from 'https';
 import { truncateChars } from '../lib/pagination.js';
+import { validateNpmPackageName, validateReadmeLimit } from '../lib/validators.js';
 
 export const DOCS_TOOLS = [
   {
@@ -92,11 +93,13 @@ function httpsGet(url) {
 }
 
 export async function getLibraryDescription(args) {
-  const { library_npm_name, readmeLimit = 5000 } = args;
+  const { library_npm_name } = args;
+  const readmeLimit = validateReadmeLimit(args.readmeLimit);
 
-  if (!library_npm_name) {
+  const nameCheck = validateNpmPackageName(library_npm_name);
+  if (!nameCheck.valid) {
     return {
-      content: [{ type: 'text', text: 'Error: library_npm_name is required' }],
+      content: [{ type: 'text', text: `Error: ${nameCheck.error}` }],
     };
   }
 

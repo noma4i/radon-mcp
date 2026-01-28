@@ -29,7 +29,7 @@ RELATED TOOLS:
 NOTE: Requires Radon IDE with active iOS Simulator.`,
     inputSchema: {
       type: 'object',
-      properties: {},
+      additionalProperties: false,
     },
   },
   {

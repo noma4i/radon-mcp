@@ -1,3 +1,5 @@
+import { validateRegex } from './validators.js';
+
 export const KEEP_FIRST_N = 50;
 export const KEEP_LAST_N = 150;
 export const MAX_LINES = KEEP_FIRST_N + KEEP_LAST_N;
@@ -60,9 +62,14 @@ export function truncateLinesWithSummary(text, firstN = KEEP_FIRST_N, lastN = KE
  * Filter lines containing pattern
  */
 export function filterLines(text, pattern, caseSensitive = false) {
-  if (!pattern) return { text, matched: text.split('\n').length, total: text.split('\n').length };
-
   const lines = text.split('\n');
+  if (!pattern) return { text, matched: lines.length, total: lines.length };
+
+  const validation = validateRegex(pattern);
+  if (!validation.valid) {
+    return { text: '', matched: 0, total: lines.length, error: validation.error };
+  }
+
   const regex = new RegExp(pattern, caseSensitive ? '' : 'i');
   const filtered = lines.filter(line => regex.test(line));
 

@@ -5,22 +5,63 @@ import { reloadMetro } from '../lib/metro-client.js';
 export const DEVICE_TOOLS = [
   {
     name: 'view_screenshot',
-    description: 'Capture a screenshot of the current app state on the simulator',
+    description: `Capture current screen of iOS Simulator.
+
+Returns compressed JPEG image (max 800px, ~50-100KB) of device screen.
+
+WHEN TO USE:
+- START HERE for debugging - see current UI state
+- Verify UI changes after code modifications
+- Debug layout issues (positions, sizes, alignment)
+- Confirm navigation state (which screen is active)
+- See error screens, alerts, modals
+
+WORKFLOW:
+1. view_screenshot → see current state
+2. view_application_logs → check JS console for errors
+3. Fix code → reload_application
+4. Repeat
+
+RELATED TOOLS:
+- view_application_logs: Check JS console after seeing UI issue
+- reload_application: Apply changes and verify
+
+NOTE: Requires Radon IDE with active iOS Simulator.`,
     inputSchema: {
       type: 'object',
-      properties: {},
+      additionalProperties: false,
     },
   },
   {
     name: 'reload_application',
-    description: 'Reload the React Native application',
+    description: `Reload the React Native application.
+
+METHODS:
+- reloadJs (default): Fast Refresh - keeps component state, updates code
+- restartProcess: Full restart - clears all state
+- rebuild: Full Metro rebuild
+
+WHEN TO USE:
+- After code changes: reloadJs
+- State is corrupted: restartProcess
+- Metro cache issues: rebuild
+
+WORKFLOW:
+1. Make code changes
+2. reload_application
+3. view_screenshot → verify UI
+4. view_application_logs → check for new errors
+
+RELATED TOOLS:
+- view_screenshot: Verify changes visually
+- view_application_logs: Check for errors after reload`,
     inputSchema: {
       type: 'object',
       properties: {
         reloadMethod: {
           type: 'string',
           enum: ['reloadJs', 'restartProcess', 'rebuild'],
-          description: 'Reload method: reloadJs (fast refresh), restartProcess (restart app), or rebuild (full rebuild)',
+          description: 'Reload method. Default: reloadJs (Fast Refresh)',
           default: 'reloadJs',
         },
       },
@@ -41,7 +82,7 @@ export async function viewScreenshot() {
 
   if (result.success) {
     return {
-      content: [{ type: 'image', data: result.base64, mimeType: 'image/png' }],
+      content: [{ type: 'image', data: result.base64, mimeType: result.mimeType }],
     };
   }
 
@@ -82,7 +123,7 @@ export async function reloadApplication(args) {
 
   if (success) {
     return {
-      content: [{ type: 'text', text: `App reloaded successfully using ${methodLabel}.` }],
+      content: [{ type: 'text', text: `App reloaded successfully using ${methodLabel}.\n\nNEXT: Use view_screenshot to verify UI changes.` }],
     };
   }
 

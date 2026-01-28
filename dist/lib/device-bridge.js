@@ -5,6 +5,7 @@ import { readFileSync, unlinkSync } from 'fs';
 
 export async function captureScreenshot(deviceId, deviceSet) {
   const screenshotPath = join(tmpdir(), `radon-screenshot-${Date.now()}.png`);
+  const jpegPath = join(tmpdir(), `radon-screenshot-${Date.now()}.jpg`);
 
   try {
     execSync(
@@ -12,59 +13,34 @@ export async function captureScreenshot(deviceId, deviceSet) {
       { encoding: 'utf-8', timeout: 10000 }
     );
 
-    const imageData = readFileSync(screenshotPath);
+    // Convert to JPEG with resize (max 800px) and quality 60%
+    execSync(
+      `sips -Z 800 -s format jpeg -s formatOptions 60 "${screenshotPath}" --out "${jpegPath}"`,
+      { encoding: 'utf-8', timeout: 10000 }
+    );
+
+    const imageData = readFileSync(jpegPath);
     const base64 = imageData.toString('base64');
 
-    try {
-      unlinkSync(screenshotPath);
-    } catch { /* cleanup failed, ignore */ }
+    // Cleanup
+    try { unlinkSync(screenshotPath); } catch { /* ignore */ }
+    try { unlinkSync(jpegPath); } catch { /* ignore */ }
 
     return {
       success: true,
       base64,
-      mimeType: 'image/png',
-      path: screenshotPath,
+      mimeType: 'image/jpeg',
     };
   } catch (error) {
+    // Cleanup on error
+    try { unlinkSync(screenshotPath); } catch { /* ignore */ }
+    try { unlinkSync(jpegPath); } catch { /* ignore */ }
+
     return {
       success: false,
       error: error.message,
     };
   }
-}
-
-export async function getDeviceLogs(deviceId, deviceSet, options = {}) {
-  const { timeout = 5000, filter = '' } = options;
-
-  return new Promise((resolve) => {
-    const logs = [];
-    const args = [
-      'simctl', '--set', deviceSet,
-      'spawn', deviceId,
-      'log', 'stream',
-      '--level', 'debug',
-      '--style', 'compact',
-    ];
-
-    if (filter) {
-      args.push('--predicate', `eventMessage CONTAINS "${filter}"`);
-    }
-
-    const proc = spawn('xcrun', args, { encoding: 'utf-8' });
-
-    proc.stdout.on('data', (data) => {
-      logs.push(data.toString());
-    });
-
-    proc.stderr.on('data', (data) => {
-      logs.push(`[stderr] ${data.toString()}`);
-    });
-
-    setTimeout(() => {
-      proc.kill();
-      resolve(logs.join(''));
-    }, timeout);
-  });
 }
 
 export function reloadApp(deviceId, deviceSet, method = 'reloadJs') {

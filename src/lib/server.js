@@ -47,8 +47,12 @@ export function createServer() {
         content: [{ type: 'text', text: typeof result === 'string' ? result : JSON.stringify(result, null, 2) }],
       };
     } catch (error) {
+      const errorDetails = process.env.NODE_ENV === 'development'
+        ? `${error.message}\n\nStack:\n${error.stack}`
+        : error.message;
+
       return {
-        content: [{ type: 'text', text: `Error: ${error.message}` }],
+        content: [{ type: 'text', text: `Error: ${errorDetails}` }],
         isError: true,
       };
     }

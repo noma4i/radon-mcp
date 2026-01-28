@@ -16,9 +16,13 @@ RESPONSE INCLUDES:
 - Dependencies and peer dependencies (important for RN!)
 - README content (truncated by readmeLimit)
 
+RELATED TOOLS:
+- query_documentation: Search official RN/Expo docs
+- view_application_logs: Check for errors after installing
+
 EXAMPLES:
 - Full info: {library_npm_name: "react-native-reanimated"}
-- Short README: {library_npm_name: "expo-camera", readmeLimit: 1000}`,
+- Quick lookup: {library_npm_name: "expo-camera", readmeLimit: 1000}`,
     inputSchema: {
       type: 'object',
       properties: {
@@ -37,7 +41,13 @@ EXAMPLES:
   },
   {
     name: 'query_documentation',
-    description: 'Search React Native or Expo documentation',
+    description: `Generate links to React Native or Expo documentation.
+
+Returns URLs to official documentation pages. Use WebFetch to retrieve content.
+
+RELATED TOOLS:
+- get_library_description: Get npm package info and README
+- view_application_logs: Debug after following docs`,
     inputSchema: {
       type: 'object',
       properties: {

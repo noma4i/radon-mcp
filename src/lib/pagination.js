@@ -1,3 +1,5 @@
+import { validateRegex } from './validators.js';
+
 export const KEEP_FIRST_N = 50;
 export const KEEP_LAST_N = 150;
 export const MAX_LINES = KEEP_FIRST_N + KEEP_LAST_N;
@@ -21,19 +23,38 @@ export function truncateLines(text, firstN = KEEP_FIRST_N, lastN = KEEP_LAST_N) 
 }
 
 /**
- * Pagination by offset/limit (lines)
+ * Get last N lines from text
  */
-export function paginateLines(text, offset = 0, limit = 200) {
+export function lastNLines(text, n = 100) {
+  const lines = text.split('\n');
+  if (lines.length <= n) return text;
+  return lines.slice(-n).join('\n');
+}
+
+/**
+ * Truncate with summary header
+ */
+export function truncateLinesWithSummary(text, firstN = KEEP_FIRST_N, lastN = KEEP_LAST_N) {
   const lines = text.split('\n');
   const total = lines.length;
-  const slice = lines.slice(offset, offset + limit);
+
+  if (total <= firstN + lastN) {
+    return { text, summary: `${total} lines` };
+  }
+
+  const skipped = total - firstN - lastN;
+  const first = lines.slice(0, firstN);
+  const last = lines.slice(-lastN);
+
+  const output = [
+    ...first,
+    `\n--- SKIPPED ${skipped} LINES ---\n`,
+    ...last,
+  ].join('\n');
 
   return {
-    text: slice.join('\n'),
-    offset,
-    limit,
-    total,
-    hasMore: offset + limit < total,
+    text: output,
+    summary: `showing ${firstN} first + ${lastN} last of ${total} lines, skipped ${skipped}`,
   };
 }
 
@@ -41,9 +62,14 @@ export function paginateLines(text, offset = 0, limit = 200) {
  * Filter lines containing pattern
  */
 export function filterLines(text, pattern, caseSensitive = false) {
-  if (!pattern) return { text, matched: text.split('\n').length, total: text.split('\n').length };
-
   const lines = text.split('\n');
+  if (!pattern) return { text, matched: lines.length, total: lines.length };
+
+  const validation = validateRegex(pattern);
+  if (!validation.valid) {
+    return { text: '', matched: 0, total: lines.length, error: validation.error };
+  }
+
   const regex = new RegExp(pattern, caseSensitive ? '' : 'i');
   const filtered = lines.filter(line => regex.test(line));
 

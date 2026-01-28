@@ -4,23 +4,25 @@ import { join } from 'path';
 import { homedir } from 'os';
 
 const RADON_CACHE_PATH = join(homedir(), 'Library/Caches/com.swmansion.radon-ide/Devices');
+const EXEC_TIMEOUT = 5000;
 
 export function detectRadonDevice() {
   try {
-    const psOutput = execSync('ps aux', { encoding: 'utf-8' });
+    const psOutput = execSync('ps aux', { encoding: 'utf-8', timeout: EXEC_TIMEOUT });
 
-    // Find simulator-server-macos process
     const serverMatch = psOutput.match(/simulator-server-macos.*--id\s+([A-F0-9-]+).*--device-set\s+(\S+)/i);
 
     if (serverMatch) {
       return {
-        deviceId: serverMatch[1],
-        deviceSet: serverMatch[2],
-        platform: 'iOS',
+        device: {
+          deviceId: serverMatch[1],
+          deviceSet: serverMatch[2],
+          platform: 'iOS',
+        },
+        error: null,
       };
     }
 
-    // Fallback: scan device directories
     const iosDeviceSet = join(RADON_CACHE_PATH, 'iOS');
     if (existsSync(iosDeviceSet)) {
       const devices = readdirSync(iosDeviceSet).filter(d =>
@@ -28,52 +30,60 @@ export function detectRadonDevice() {
       );
       if (devices.length > 0) {
         return {
-          deviceId: devices[0],
-          deviceSet: iosDeviceSet,
-          platform: 'iOS',
+          device: {
+            deviceId: devices[0],
+            deviceSet: iosDeviceSet,
+            platform: 'iOS',
+          },
+          error: null,
         };
       }
     }
 
-    return null;
-  } catch {
-    return null;
+    return { device: null, error: null };
+  } catch (error) {
+    return { device: null, error: error.message };
   }
 }
 
 export function detectMetroPort() {
   try {
-    const psOutput = execSync('ps aux', { encoding: 'utf-8' });
+    const psOutput = execSync('ps aux', { encoding: 'utf-8', timeout: EXEC_TIMEOUT });
 
-    // Find Metro bundler process
     const metroMatch = psOutput.match(/react-native.*start.*--port\s+(\d+)/);
     if (metroMatch) {
-      return parseInt(metroMatch[1], 10);
+      return { port: parseInt(metroMatch[1], 10), error: null };
     }
 
-    // Check common ports
     for (const port of [8081, 50377]) {
       try {
-        execSync(`curl -s --connect-timeout 1 http://localhost:${port}/status`, { encoding: 'utf-8' });
-        return port;
+        execSync(`curl -s --connect-timeout 1 http://localhost:${port}/status`, {
+          encoding: 'utf-8',
+          timeout: 3000,
+        });
+        return { port, error: null };
       } catch {
         // Port not responding
       }
     }
 
-    return null;
-  } catch {
-    return null;
+    return { port: null, error: null };
+  } catch (error) {
+    return { port: null, error: error.message };
   }
 }
 
 export function getRadonContext() {
-  const device = detectRadonDevice();
-  const metroPort = detectMetroPort();
+  const deviceResult = detectRadonDevice();
+  const metroResult = detectMetroPort();
 
   return {
-    device,
-    metroPort,
-    isRunning: device !== null || metroPort !== null,
+    device: deviceResult.device,
+    metroPort: metroResult.port,
+    isRunning: deviceResult.device !== null || metroResult.port !== null,
+    errors: {
+      device: deviceResult.error,
+      metro: metroResult.error,
+    },
   };
 }

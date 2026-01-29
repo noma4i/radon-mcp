@@ -1,6 +1,6 @@
 {
   "name": "@noma4i/radon-mcp",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "MCP server for Radon IDE integration with React Native debugging",
   "type": "module",
   "main": "dist/index.js",

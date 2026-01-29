@@ -9,14 +9,14 @@
   },
   "files": [
     "dist",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
   "publishConfig": {
     "access": "public"
   },
   "scripts": {
     "build": "bun scripts/build.js",
-    "build:watch": "bun scripts/build.js --watch",
     "start": "bun dist/index.js",
     "dev": "bun run build && bun run start",
     "clean": "rm -rf dist",

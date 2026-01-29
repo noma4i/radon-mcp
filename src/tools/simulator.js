@@ -1,12 +1,5 @@
 import { getRadonContext } from '../lib/radon-detector.js';
-import {
-  openUrl,
-  setAppearance,
-  setStatusBar,
-  clearStatusBar,
-  setPrivacy,
-  getDeviceInfo,
-} from '../lib/device-bridge.js';
+import { openUrl, setAppearance, setStatusBar, clearStatusBar, setPrivacy, getDeviceInfo } from '../lib/device-bridge.js';
 
 export const SIMULATOR_TOOLS = [
   {
@@ -26,17 +19,21 @@ EXAMPLES:
 WORKFLOW:
 1. open_url with deeplink
 2. view_screenshot → verify navigation
-3. view_application_logs → check for errors`,
+3. view_application_logs → check for errors
+
+RELATED TOOLS:
+- view_screenshot: Verify navigation after opening URL
+- view_application_logs: Check for deeplink handling errors`,
     inputSchema: {
       type: 'object',
       properties: {
         url: {
           type: 'string',
-          description: 'URL or deeplink to open (e.g., myapp://screen, https://example.com)',
-        },
+          description: 'URL or deeplink to open (e.g., myapp://screen, https://example.com)'
+        }
       },
-      required: ['url'],
-    },
+      required: ['url']
+    }
   },
   {
     name: 'set_appearance',
@@ -51,18 +48,22 @@ WORKFLOW:
 1. set_appearance → dark
 2. view_screenshot → verify dark mode UI
 3. set_appearance → light
-4. view_screenshot → compare`,
+4. view_screenshot → compare
+
+RELATED TOOLS:
+- view_screenshot: Verify theme changes visually
+- reload_application: Reload if theme logic needs restart`,
     inputSchema: {
       type: 'object',
       properties: {
         mode: {
           type: 'string',
           enum: ['dark', 'light'],
-          description: 'Appearance mode: dark or light',
-        },
+          description: 'Appearance mode: dark or light'
+        }
       },
-      required: ['mode'],
-    },
+      required: ['mode']
+    }
   },
   {
     name: 'set_status_bar',
@@ -79,44 +80,52 @@ OPTIONS:
 - cellularBars: 0-4
 - wifiBars: 0-3
 
-Use clear_status_bar to reset to default.`,
+Use clear_status_bar to reset to default.
+
+RELATED TOOLS:
+- clear_status_bar: Reset to default values
+- view_screenshot: Capture standardized screenshot`,
     inputSchema: {
       type: 'object',
       properties: {
         time: {
           type: 'string',
-          description: 'Time to display (e.g., "9:41")',
+          description: 'Time to display (e.g., "9:41")'
         },
         batteryLevel: {
           type: 'number',
           minimum: 0,
           maximum: 100,
-          description: 'Battery percentage (0-100)',
+          description: 'Battery percentage (0-100)'
         },
         cellularBars: {
           type: 'number',
           minimum: 0,
           maximum: 4,
-          description: 'Cellular signal bars (0-4)',
+          description: 'Cellular signal bars (0-4)'
         },
         wifiBars: {
           type: 'number',
           minimum: 0,
           maximum: 3,
-          description: 'WiFi signal bars (0-3)',
-        },
-      },
-    },
+          description: 'WiFi signal bars (0-3)'
+        }
+      }
+    }
   },
   {
     name: 'clear_status_bar',
     description: `Reset iOS Simulator status bar to default values.
 
-Use after set_status_bar to restore normal status bar.`,
+Use after set_status_bar to restore normal status bar.
+
+RELATED TOOLS:
+- set_status_bar: Customize status bar values
+- view_screenshot: Verify reset`,
     inputSchema: {
       type: 'object',
-      additionalProperties: false,
-    },
+      additionalProperties: false
+    }
   },
   {
     name: 'set_privacy',
@@ -136,31 +145,46 @@ SERVICES:
 camera, photos, location, microphone, contacts, calendar, reminders, etc.
 
 EXAMPLE:
-Grant camera access to com.myapp.bundle`,
+Grant camera access to com.myapp.bundle
+
+RELATED TOOLS:
+- reload_application: Restart app to re-trigger permission flow
+- view_screenshot: Verify permission dialog or UI change`,
     inputSchema: {
       type: 'object',
       properties: {
         action: {
           type: 'string',
           enum: ['grant', 'revoke', 'reset'],
-          description: 'Permission action',
+          description: 'Permission action'
         },
         service: {
           type: 'string',
           enum: [
-            'all', 'calendar', 'contacts-limited', 'contacts', 'location',
-            'location-always', 'photos-add', 'photos', 'media-library',
-            'microphone', 'motion', 'reminders', 'siri', 'camera'
+            'all',
+            'calendar',
+            'contacts-limited',
+            'contacts',
+            'location',
+            'location-always',
+            'photos-add',
+            'photos',
+            'media-library',
+            'microphone',
+            'motion',
+            'reminders',
+            'siri',
+            'camera'
           ],
-          description: 'Permission service',
+          description: 'Permission service'
         },
         bundleId: {
           type: 'string',
-          description: 'App bundle identifier (e.g., com.mycompany.myapp)',
-        },
+          description: 'App bundle identifier (e.g., com.mycompany.myapp)'
+        }
       },
-      required: ['action', 'service', 'bundleId'],
-    },
+      required: ['action', 'service', 'bundleId']
+    }
   },
   {
     name: 'get_device_info',
@@ -175,12 +199,16 @@ Returns:
 WHEN TO USE:
 - Understand testing context
 - Debug device-specific issues
-- Verify simulator configuration`,
+- Verify simulator configuration
+
+RELATED TOOLS:
+- check_system_health: Full system diagnostics
+- view_screenshot: Verify simulator is running`,
     inputSchema: {
       type: 'object',
-      additionalProperties: false,
-    },
-  },
+      additionalProperties: false
+    }
+  }
 ];
 
 export async function handleOpenUrl(args) {
@@ -188,7 +216,7 @@ export async function handleOpenUrl(args) {
 
   if (!context.device) {
     return {
-      content: [{ type: 'text', text: 'No Radon IDE device detected. Make sure Radon IDE is running with a simulator.' }],
+      content: [{ type: 'text', text: 'No Radon IDE device detected. Make sure Radon IDE is running with a simulator.' }]
     };
   }
 
@@ -196,12 +224,12 @@ export async function handleOpenUrl(args) {
 
   if (result.success) {
     return {
-      content: [{ type: 'text', text: `Opened URL: ${args.url}\n\nNEXT: Use view_screenshot to verify navigation.` }],
+      content: [{ type: 'text', text: `Opened URL: ${args.url}\n\nNEXT: Use view_screenshot to verify navigation.` }]
     };
   }
 
   return {
-    content: [{ type: 'text', text: `Failed to open URL: ${result.error}` }],
+    content: [{ type: 'text', text: `Failed to open URL: ${result.error}` }]
   };
 }
 
@@ -210,7 +238,7 @@ export async function handleSetAppearance(args) {
 
   if (!context.device) {
     return {
-      content: [{ type: 'text', text: 'No Radon IDE device detected. Make sure Radon IDE is running with a simulator.' }],
+      content: [{ type: 'text', text: 'No Radon IDE device detected. Make sure Radon IDE is running with a simulator.' }]
     };
   }
 
@@ -218,12 +246,12 @@ export async function handleSetAppearance(args) {
 
   if (result.success) {
     return {
-      content: [{ type: 'text', text: `Appearance set to ${args.mode} mode.\n\nNEXT: Use view_screenshot to verify theme changes.` }],
+      content: [{ type: 'text', text: `Appearance set to ${args.mode} mode.\n\nNEXT: Use view_screenshot to verify theme changes.` }]
     };
   }
 
   return {
-    content: [{ type: 'text', text: `Failed to set appearance: ${result.error}` }],
+    content: [{ type: 'text', text: `Failed to set appearance: ${result.error}` }]
   };
 }
 
@@ -232,7 +260,7 @@ export async function handleSetStatusBar(args) {
 
   if (!context.device) {
     return {
-      content: [{ type: 'text', text: 'No Radon IDE device detected. Make sure Radon IDE is running with a simulator.' }],
+      content: [{ type: 'text', text: 'No Radon IDE device detected. Make sure Radon IDE is running with a simulator.' }]
     };
   }
 
@@ -243,12 +271,12 @@ export async function handleSetStatusBar(args) {
       .map(([k, v]) => `${k}: ${v}`)
       .join(', ');
     return {
-      content: [{ type: 'text', text: `Status bar updated: ${changes}\n\nNEXT: Use view_screenshot to see changes.` }],
+      content: [{ type: 'text', text: `Status bar updated: ${changes}\n\nNEXT: Use view_screenshot to see changes.` }]
     };
   }
 
   return {
-    content: [{ type: 'text', text: `Failed to set status bar: ${result.error}` }],
+    content: [{ type: 'text', text: `Failed to set status bar: ${result.error}` }]
   };
 }
 
@@ -257,7 +285,7 @@ export async function handleClearStatusBar() {
 
   if (!context.device) {
     return {
-      content: [{ type: 'text', text: 'No Radon IDE device detected. Make sure Radon IDE is running with a simulator.' }],
+      content: [{ type: 'text', text: 'No Radon IDE device detected. Make sure Radon IDE is running with a simulator.' }]
     };
   }
 
@@ -265,12 +293,12 @@ export async function handleClearStatusBar() {
 
   if (result.success) {
     return {
-      content: [{ type: 'text', text: 'Status bar reset to default values.' }],
+      content: [{ type: 'text', text: 'Status bar reset to default values.' }]
     };
   }
 
   return {
-    content: [{ type: 'text', text: `Failed to clear status bar: ${result.error}` }],
+    content: [{ type: 'text', text: `Failed to clear status bar: ${result.error}` }]
   };
 }
 
@@ -279,26 +307,20 @@ export async function handleSetPrivacy(args) {
 
   if (!context.device) {
     return {
-      content: [{ type: 'text', text: 'No Radon IDE device detected. Make sure Radon IDE is running with a simulator.' }],
+      content: [{ type: 'text', text: 'No Radon IDE device detected. Make sure Radon IDE is running with a simulator.' }]
     };
   }
 
-  const result = setPrivacy(
-    context.device.deviceId,
-    context.device.deviceSet,
-    args.action,
-    args.service,
-    args.bundleId
-  );
+  const result = setPrivacy(context.device.deviceId, context.device.deviceSet, args.action, args.service, args.bundleId);
 
   if (result.success) {
     return {
-      content: [{ type: 'text', text: `Permission ${args.action}: ${args.service} for ${args.bundleId}\n\nNEXT: Reload app and test the permission flow.` }],
+      content: [{ type: 'text', text: `Permission ${args.action}: ${args.service} for ${args.bundleId}\n\nNEXT: Reload app and test the permission flow.` }]
     };
   }
 
   return {
-    content: [{ type: 'text', text: `Failed to set privacy: ${result.error}` }],
+    content: [{ type: 'text', text: `Failed to set privacy: ${result.error}` }]
   };
 }
 
@@ -307,7 +329,7 @@ export async function handleGetDeviceInfo() {
 
   if (!context.device) {
     return {
-      content: [{ type: 'text', text: 'No Radon IDE device detected. Make sure Radon IDE is running with a simulator.' }],
+      content: [{ type: 'text', text: 'No Radon IDE device detected. Make sure Radon IDE is running with a simulator.' }]
     };
   }
 
@@ -320,16 +342,18 @@ export async function handleGetDeviceInfo() {
       `UDID: ${device.udid}`,
       `State: ${device.state}`,
       `Runtime: ${device.runtime}`,
-      device.deviceTypeIdentifier ? `Type: ${device.deviceTypeIdentifier.split('.').pop()}` : null,
-    ].filter(Boolean).join('\n');
+      device.deviceTypeIdentifier ? `Type: ${device.deviceTypeIdentifier.split('.').pop()}` : null
+    ]
+      .filter(Boolean)
+      .join('\n');
 
     return {
-      content: [{ type: 'text', text: `Device Information:\n\n${info}` }],
+      content: [{ type: 'text', text: `Device Information:\n\n${info}` }]
     };
   }
 
   return {
-    content: [{ type: 'text', text: `Failed to get device info: ${result.error}` }],
+    content: [{ type: 'text', text: `Failed to get device info: ${result.error}` }]
   };
 }
 
@@ -339,5 +363,5 @@ export const SIMULATOR_HANDLERS = {
   set_status_bar: handleSetStatusBar,
   clear_status_bar: handleClearStatusBar,
   set_privacy: handleSetPrivacy,
-  get_device_info: handleGetDeviceInfo,
+  get_device_info: handleGetDeviceInfo
 };

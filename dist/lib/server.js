@@ -10,7 +10,7 @@ export function createServer() {
   const server = new Server(
     {
       name: 'Radon-MCP',
-      version: '0.1.0',
+      version: '1.0.1',
     },
     {
       capabilities: {
@@ -37,12 +37,10 @@ export function createServer() {
     try {
       const result = await handler(args || {});
 
-      // Если handler вернул готовый MCP формат { content: [...] }
       if (result && Array.isArray(result.content)) {
         return result;
       }
 
-      // Иначе оборачиваем в текст
       return {
         content: [{ type: 'text', text: typeof result === 'string' ? result : JSON.stringify(result, null, 2) }],
       };

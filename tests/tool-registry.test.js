@@ -76,7 +76,20 @@ describe('tool-registry', () => {
   });
 
   test('tool descriptions include RELATED TOOLS section', () => {
-    const toolsWithRelated = ['view_screenshot', 'view_application_logs', 'reload_application', 'get_library_description', 'query_documentation'];
+    const toolsWithRelated = [
+      'view_screenshot',
+      'view_application_logs',
+      'reload_application',
+      'get_library_description',
+      'query_documentation',
+      'check_system_health',
+      'open_url',
+      'set_appearance',
+      'set_status_bar',
+      'clear_status_bar',
+      'set_privacy',
+      'get_device_info'
+    ];
 
     for (const name of toolsWithRelated) {
       const tool = ALL_TOOLS.find(t => t.name === name);

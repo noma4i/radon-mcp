@@ -49,7 +49,7 @@ Add to your Claude Code MCP configuration (`~/.claude.json` or project `.mcp.jso
   "mcpServers": {
     "radon": {
       "command": "bunx",
-      "args": ["@noma4i/radon-mcp"]
+      "args": ["@noma4i/radon-mcp@latest"]
     }
   }
 }
@@ -62,7 +62,7 @@ Or with npx:
   "mcpServers": {
     "radon": {
       "command": "npx",
-      "args": ["@noma4i/radon-mcp"]
+      "args": ["@noma4i/radon-mcp@latest"]
     }
   }
 }

@@ -51,8 +51,7 @@ WORKFLOW:
 4. view_screenshot → compare
 
 RELATED TOOLS:
-- view_screenshot: Verify theme changes visually
-- reload_application: Reload if theme logic needs restart`,
+- view_screenshot: Verify theme changes visually`,
     inputSchema: {
       type: 'object',
       properties: {
@@ -148,7 +147,6 @@ EXAMPLE:
 Grant camera access to com.myapp.bundle
 
 RELATED TOOLS:
-- reload_application: Restart app to re-trigger permission flow
 - view_screenshot: Verify permission dialog or UI change`,
     inputSchema: {
       type: 'object',

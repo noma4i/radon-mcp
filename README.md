@@ -4,13 +4,12 @@ MCP (Model Context Protocol) server for React Native debugging with Radon IDE in
 
 ## Overview
 
-This server provides tools for debugging React Native applications through Claude Code and other MCP-compatible clients. It auto-detects Radon IDE instances and provides direct access to Metro bundler logs, simulator screenshots, and app reload functionality.
+This server provides tools for debugging React Native applications through Claude Code and other MCP-compatible clients. It auto-detects Radon IDE instances and provides direct access to Metro bundler logs, simulator screenshots, and simulator control.
 
 ## Features
 
-- **Metro Logs**: Access JavaScript console output with filtering and pagination
+- **Metro Logs**: Access JavaScript console output via CDP WebSocket with filtering and pagination
 - **Screenshots**: Capture compressed JPEG screenshots from iOS Simulator
-- **App Reload**: Fast Refresh, process restart, or full rebuild
 - **System Health**: Diagnose Radon IDE and Metro bundler connectivity
 - **Simulator Control**: Dark/light mode, status bar, URL/deeplinks, permissions, device info
 - **npm Package Info**: Fetch package metadata and README from npm registry
@@ -68,7 +67,7 @@ Or with npx:
 }
 ```
 
-## Tools
+## Tools (11)
 
 ### Debugging
 
@@ -82,7 +81,7 @@ Captures the current screen of iOS Simulator as a compressed JPEG (max 800px, ~5
 
 #### view_application_logs
 
-Gets Metro bundler logs with filtering and pagination.
+Gets Metro bundler JS console logs via CDP WebSocket with filtering and pagination.
 
 | Parameter | Type   | Description                                        |
 | --------- | ------ | -------------------------------------------------- |
@@ -101,22 +100,6 @@ Gets Metro bundler logs with filtering and pagination.
 
 // Last 100 error lines
 {filter: "error", last: 100}
-```
-
-#### reload_application
-
-Reloads the React Native application.
-
-| Parameter    | Type   | Description                                          |
-| ------------ | ------ | ---------------------------------------------------- |
-| reloadMethod | string | `reloadJs` (default), `restartProcess`, or `rebuild` |
-
-```
-// Fast Refresh (keeps state)
-{}
-
-// Full restart (clears state)
-{reloadMethod: "restartProcess"}
 ```
 
 #### check_system_health
@@ -235,8 +218,7 @@ Generates links to React Native or Expo documentation.
 1. `view_screenshot` - See current UI state
 2. `view_application_logs` - Check JS console for errors
 3. Fix code
-4. `reload_application` - Apply changes
-5. Repeat from step 1
+4. Repeat from step 1
 
 ## Development
 
@@ -267,7 +249,7 @@ Claude Code <--MCP/stdio--> radon-mcp
          +--------------------+--------------------+
          |                    |                    |
          v                    v                    v
-    npm registry        xcrun simctl         Metro HTTP API
+    npm registry        xcrun simctl         Metro CDP/HTTP
 ```
 
 The server auto-detects:

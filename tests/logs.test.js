@@ -51,16 +51,20 @@ describe('logs tools', () => {
     expect(tool.description).toContain('last (if set)');
     expect(tool.description).toContain('truncate');
   });
+
+  test('tool description mentions CDP WebSocket', () => {
+    const tool = LOGS_TOOLS.find(t => t.name === 'view_application_logs');
+
+    expect(tool.description).toContain('CDP WebSocket');
+  });
 });
 
 describe('viewApplicationLogs processing logic', () => {
   test('filter and last parameters work together', () => {
-    // Simulate the processing logic
     const processLogs = (logs, filter, last) => {
       let output = logs;
       const summaryParts = [];
 
-      // Step 1: Filter
       if (filter) {
         const lines = output.split('\n');
         const regex = new RegExp(filter, 'i');
@@ -69,7 +73,6 @@ describe('viewApplicationLogs processing logic', () => {
         summaryParts.push(`matched ${filtered.length} of ${lines.length}`);
       }
 
-      // Step 2: Last N
       if (last && last > 0) {
         const lines = output.split('\n');
         if (lines.length > last) {
@@ -83,17 +86,14 @@ describe('viewApplicationLogs processing logic', () => {
 
     const logs = 'error: one\ninfo: two\nerror: three\ninfo: four\nerror: five';
 
-    // Filter only
     const filtered = processLogs(logs, 'error', null);
     expect(filtered.output).toBe('error: one\nerror: three\nerror: five');
     expect(filtered.summary).toContain('matched 3 of 5');
 
-    // Last only
     const lastOnly = processLogs(logs, null, 2);
     expect(lastOnly.output).toBe('info: four\nerror: five');
     expect(lastOnly.summary).toContain('last 2 of 5');
 
-    // Filter then last
     const both = processLogs(logs, 'error', 2);
     expect(both.output).toBe('error: three\nerror: five');
     expect(both.summary).toContain('matched 3 of 5');

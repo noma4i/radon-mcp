@@ -29,38 +29,7 @@ export function getMetroStatus(port) {
   });
 }
 
-export function reloadMetro(port) {
-  return new Promise(resolve => {
-    const postData = '';
-    const req = request(
-      {
-        hostname: 'localhost',
-        port,
-        path: '/reload',
-        method: 'POST',
-        timeout: 5000,
-        headers: { 'Content-Length': 0 }
-      },
-      res => {
-        resolve({ success: res.statusCode === 200, statusCode: res.statusCode });
-      }
-    );
-
-    req.on('error', error => {
-      resolve({ success: false, error: error.message });
-    });
-
-    req.on('timeout', () => {
-      req.destroy();
-      resolve({ success: false, error: 'timeout' });
-    });
-
-    req.write(postData);
-    req.end();
-  });
-}
-
-export function getMetroPages(port) {
+function getMetroPages(port) {
   return new Promise(resolve => {
     const req = request({ hostname: 'localhost', port, path: '/json', method: 'GET', timeout: 3000 }, res => {
       let data = '';
@@ -69,8 +38,7 @@ export function getMetroPages(port) {
       });
       res.on('end', () => {
         try {
-          const pages = JSON.parse(data);
-          resolve({ success: true, pages });
+          resolve({ success: true, pages: JSON.parse(data) });
         } catch {
           resolve({ success: false, error: 'Invalid JSON from /json endpoint' });
         }
@@ -129,8 +97,7 @@ export function getMetroLogs(port, options = {}) {
         try {
           ws.close();
         } catch {}
-        const text = logs.join('\n');
-        resolve({ success: true, logs: text });
+        resolve({ success: true, logs: logs.join('\n') });
       };
 
       const timer = setTimeout(finish, collectTimeout);

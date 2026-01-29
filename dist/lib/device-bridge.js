@@ -46,25 +46,6 @@ export async function captureScreenshot(deviceId, deviceSet) {
   }
 }
 
-export function reloadApp(deviceId, deviceSet, method = 'reloadJs') {
-  const idCheck = validateDeviceId(deviceId);
-  if (!idCheck.valid) return { success: false, error: idCheck.error };
-
-  const pathCheck = validatePath(deviceSet);
-  if (!pathCheck.valid) return { success: false, error: pathCheck.error };
-
-  try {
-    if (method === 'reloadJs') {
-      execSync(`xcrun simctl --set "${deviceSet}" spawn "${deviceId}" notifyutil -p com.apple.mobile.keybag.userAuthenticated`, { encoding: 'utf-8', timeout: 5000 });
-      return { success: true, method: 'reloadJs' };
-    }
-
-    return { success: true, method: 'fullRestart', note: 'Use Metro reload for full restart' };
-  } catch (error) {
-    return { success: false, error: error.message };
-  }
-}
-
 export function listBootedDevices(deviceSet) {
   const pathCheck = validatePath(deviceSet);
   if (!pathCheck.valid) return { devices: {}, error: pathCheck.error };

@@ -21,9 +21,9 @@ RELATED TOOLS:
 - view_application_logs: Requires Metro bundler`,
     inputSchema: {
       type: 'object',
-      additionalProperties: false,
-    },
-  },
+      additionalProperties: false
+    }
+  }
 ];
 
 export async function checkSystemHealth() {
@@ -34,14 +34,14 @@ export async function checkSystemHealth() {
       status: 'unknown',
       deviceId: null,
       platform: null,
-      error: null,
+      error: null
     },
     metro: {
       status: 'unknown',
       port: null,
-      error: null,
+      error: null
     },
-    system: 'unknown',
+    system: 'unknown'
   };
 
   if (context.device) {
@@ -102,5 +102,5 @@ export async function checkSystemHealth() {
 }
 
 export const HEALTH_HANDLERS = {
-  check_system_health: checkSystemHealth,
+  check_system_health: checkSystemHealth
 };

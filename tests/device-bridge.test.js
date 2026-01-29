@@ -5,48 +5,14 @@ describe('device-bridge module', () => {
     const module = await import('../src/lib/device-bridge.js');
 
     expect(typeof module.captureScreenshot).toBe('function');
-    expect(typeof module.reloadApp).toBe('function');
     expect(typeof module.listBootedDevices).toBe('function');
   });
-});
 
-describe('reloadApp', () => {
-  test('returns success object structure for non-reloadJs methods with valid inputs', async () => {
-    const { reloadApp } = await import('../src/lib/device-bridge.js');
+  test('does not export removed functions', async () => {
+    const module = await import('../src/lib/device-bridge.js');
 
-    // Valid UUID and path
-    const result = reloadApp(
-      'A1B2C3D4-E5F6-7890-ABCD-EF1234567890',
-      '/Users/test/Library/Caches',
-      'restartProcess'
-    );
-
-    expect(result).toHaveProperty('success');
-    expect(result).toHaveProperty('method');
-    expect(result.success).toBe(true);
-    expect(result.method).toBe('fullRestart');
-  });
-
-  test('rejects invalid device ID', async () => {
-    const { reloadApp } = await import('../src/lib/device-bridge.js');
-
-    const result = reloadApp('invalid-device', '/valid/path', 'restartProcess');
-
-    expect(result.success).toBe(false);
-    expect(result.error).toContain('Invalid device ID');
-  });
-
-  test('rejects invalid path', async () => {
-    const { reloadApp } = await import('../src/lib/device-bridge.js');
-
-    const result = reloadApp(
-      'A1B2C3D4-E5F6-7890-ABCD-EF1234567890',
-      '/path/with/../traversal',
-      'restartProcess'
-    );
-
-    expect(result.success).toBe(false);
-    expect(result.error).toContain('Path traversal');
+    expect(module.reloadApp).toBeUndefined();
+    expect(module.getDeviceLogs).toBeUndefined();
   });
 });
 
@@ -84,10 +50,7 @@ describe('captureScreenshot', () => {
   test('rejects invalid path', async () => {
     const { captureScreenshot } = await import('../src/lib/device-bridge.js');
 
-    const result = await captureScreenshot(
-      'A1B2C3D4-E5F6-7890-ABCD-EF1234567890',
-      '/path/../traversal'
-    );
+    const result = await captureScreenshot('A1B2C3D4-E5F6-7890-ABCD-EF1234567890', '/path/../traversal');
 
     expect(result.success).toBe(false);
     expect(result.error).toContain('Path traversal');
@@ -112,11 +75,7 @@ describe('openUrl', () => {
   test('rejects invalid path', async () => {
     const { openUrl } = await import('../src/lib/device-bridge.js');
 
-    const result = openUrl(
-      'A1B2C3D4-E5F6-7890-ABCD-EF1234567890',
-      '/path/../traversal',
-      'https://example.com'
-    );
+    const result = openUrl('A1B2C3D4-E5F6-7890-ABCD-EF1234567890', '/path/../traversal', 'https://example.com');
 
     expect(result.success).toBe(false);
     expect(result.error).toContain('Path traversal');
@@ -125,11 +84,7 @@ describe('openUrl', () => {
   test('rejects missing URL', async () => {
     const { openUrl } = await import('../src/lib/device-bridge.js');
 
-    const result = openUrl(
-      'A1B2C3D4-E5F6-7890-ABCD-EF1234567890',
-      '/valid/path',
-      null
-    );
+    const result = openUrl('A1B2C3D4-E5F6-7890-ABCD-EF1234567890', '/valid/path', null);
 
     expect(result.success).toBe(false);
     expect(result.error).toContain('URL is required');
@@ -154,11 +109,7 @@ describe('setAppearance', () => {
   test('rejects invalid mode', async () => {
     const { setAppearance } = await import('../src/lib/device-bridge.js');
 
-    const result = setAppearance(
-      'A1B2C3D4-E5F6-7890-ABCD-EF1234567890',
-      '/valid/path',
-      'invalid'
-    );
+    const result = setAppearance('A1B2C3D4-E5F6-7890-ABCD-EF1234567890', '/valid/path', 'invalid');
 
     expect(result.success).toBe(false);
     expect(result.error).toContain('Mode must be');
@@ -183,11 +134,7 @@ describe('setStatusBar', () => {
   test('rejects empty options', async () => {
     const { setStatusBar } = await import('../src/lib/device-bridge.js');
 
-    const result = setStatusBar(
-      'A1B2C3D4-E5F6-7890-ABCD-EF1234567890',
-      '/valid/path',
-      {}
-    );
+    const result = setStatusBar('A1B2C3D4-E5F6-7890-ABCD-EF1234567890', '/valid/path', {});
 
     expect(result.success).toBe(false);
     expect(result.error).toContain('At least one status bar option');
@@ -228,13 +175,7 @@ describe('setPrivacy', () => {
   test('rejects invalid action', async () => {
     const { setPrivacy } = await import('../src/lib/device-bridge.js');
 
-    const result = setPrivacy(
-      'A1B2C3D4-E5F6-7890-ABCD-EF1234567890',
-      '/valid/path',
-      'invalid',
-      'camera',
-      'com.app'
-    );
+    const result = setPrivacy('A1B2C3D4-E5F6-7890-ABCD-EF1234567890', '/valid/path', 'invalid', 'camera', 'com.app');
 
     expect(result.success).toBe(false);
     expect(result.error).toContain('Action must be');
@@ -243,13 +184,7 @@ describe('setPrivacy', () => {
   test('rejects invalid service', async () => {
     const { setPrivacy } = await import('../src/lib/device-bridge.js');
 
-    const result = setPrivacy(
-      'A1B2C3D4-E5F6-7890-ABCD-EF1234567890',
-      '/valid/path',
-      'grant',
-      'invalid-service',
-      'com.app'
-    );
+    const result = setPrivacy('A1B2C3D4-E5F6-7890-ABCD-EF1234567890', '/valid/path', 'grant', 'invalid-service', 'com.app');
 
     expect(result.success).toBe(false);
     expect(result.error).toContain('Invalid service');
@@ -258,13 +193,7 @@ describe('setPrivacy', () => {
   test('rejects missing bundle ID', async () => {
     const { setPrivacy } = await import('../src/lib/device-bridge.js');
 
-    const result = setPrivacy(
-      'A1B2C3D4-E5F6-7890-ABCD-EF1234567890',
-      '/valid/path',
-      'grant',
-      'camera',
-      null
-    );
+    const result = setPrivacy('A1B2C3D4-E5F6-7890-ABCD-EF1234567890', '/valid/path', 'grant', 'camera', null);
 
     expect(result.success).toBe(false);
     expect(result.error).toContain('Bundle ID is required');

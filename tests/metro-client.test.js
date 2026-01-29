@@ -1,13 +1,19 @@
 import { describe, test, expect } from 'bun:test';
 
 describe('metro-client module', () => {
-  test('exports required functions', async () => {
+  test('exports getMetroStatus and getMetroLogs', async () => {
     const module = await import('../src/lib/metro-client.js');
 
     expect(typeof module.getMetroStatus).toBe('function');
-    expect(typeof module.reloadMetro).toBe('function');
     expect(typeof module.getMetroLogs).toBe('function');
-    expect(typeof module.getMetroPages).toBe('function');
+  });
+
+  test('does not export removed functions', async () => {
+    const module = await import('../src/lib/metro-client.js');
+
+    expect(module.reloadMetro).toBeUndefined();
+    expect(module.getMetroPages).toBeUndefined();
+    expect(module.formatConsoleArgs).toBeUndefined();
   });
 
   test('getMetroStatus handles connection failure', async () => {
@@ -19,30 +25,12 @@ describe('metro-client module', () => {
     expect(status).toHaveProperty('port');
   });
 
-  test('reloadMetro returns result object on failure', async () => {
-    const { reloadMetro } = await import('../src/lib/metro-client.js');
-
-    const result = await reloadMetro(1);
-
-    expect(result).toHaveProperty('success');
-    expect(result.success).toBe(false);
-  });
-
-  test('getMetroPages returns error on connection failure', async () => {
-    const { getMetroPages } = await import('../src/lib/metro-client.js');
-
-    const result = await getMetroPages(1);
-
-    expect(result).toHaveProperty('success');
-    expect(result.success).toBe(false);
-  });
-
-  test('getMetroLogs returns error on connection failure', async () => {
+  test('getMetroLogs handles connection failure', async () => {
     const { getMetroLogs } = await import('../src/lib/metro-client.js');
 
-    const result = await getMetroLogs(1, {});
+    const result = await getMetroLogs(1, { collectTimeout: 500 });
 
-    expect(result).toHaveProperty('success');
     expect(result.success).toBe(false);
+    expect(result).toHaveProperty('error');
   });
 });

@@ -1,13 +1,13 @@
-import { getRadonContext } from '../lib/radon-detector.js';
 import { getMetroLogs } from '../lib/metro-client.js';
+import { getRadonContext } from '../lib/radon-detector.js';
 import { truncateLinesWithSummary, filterLines, lastNLines } from '../lib/pagination.js';
 
 export const LOGS_TOOLS = [
   {
     name: 'view_application_logs',
-    description: `Get Metro bundler logs from React Native app.
+    description: `Get application logs from React Native app.
 
-Returns JavaScript console output: console.log, warnings, errors, React Native bridge messages.
+Reads Metro JS console logs via CDP WebSocket.
 
 PARAMETERS:
 - filter: Regex to grep specific lines FIRST (errors, warnings, component names)
@@ -27,7 +27,6 @@ WHEN TO USE:
 
 RELATED TOOLS:
 - view_screenshot: See current UI state first, then check logs
-- reload_application: Reload app after fixes, then check logs
 
 EXAMPLES:
 - All logs: {} → first 50 + last 150 lines
@@ -39,46 +38,45 @@ EXAMPLES:
       properties: {
         filter: {
           type: 'string',
-          description: 'Regex pattern to grep log lines. Applied FIRST. Case-insensitive.',
+          description: 'Regex pattern to grep log lines. Applied FIRST. Case-insensitive.'
         },
         last: {
           type: 'number',
-          description: 'Take last N lines AFTER filtering. If not set, truncates to 200.',
-        },
-      },
-    },
-  },
+          description: 'Take last N lines AFTER filtering. If not set, truncates to 200.'
+        }
+      }
+    }
+  }
 ];
 
 export async function viewApplicationLogs(args) {
   const { filter, last } = args;
+
   const context = getRadonContext();
 
   if (!context.metroPort) {
     return {
-      content: [{ type: 'text', text: 'Metro bundler not detected. Make sure your React Native app is running.\n\nTIP: Use view_screenshot to check if simulator is running.' }],
+      content: [{ type: 'text', text: 'Metro bundler not detected.\n\nTIP: Use check_system_health to diagnose.' }]
     };
   }
 
-  const logs = await getMetroLogs(context.metroPort, {});
+  const logs = await getMetroLogs(context.metroPort);
 
   if (!logs.success || !logs.logs) {
     return {
-      content: [{ type: 'text', text: 'No logs available from Metro bundler.\n\nTIP: Use view_screenshot to verify app is running.' }],
+      content: [{ type: 'text', text: `Failed to get logs: ${logs.error || 'unknown error'}\n\nTIP: Use check_system_health to diagnose.` }]
     };
   }
 
   let output = logs.logs;
   let summaryParts = [];
 
-  // Step 1: Filter (if provided)
   if (filter) {
     const result = filterLines(output, filter);
     output = result.text;
     summaryParts.push(`matched ${result.matched} of ${result.total}`);
   }
 
-  // Step 2: Take last N lines (if provided)
   if (last && last > 0) {
     const linesBefore = output.split('\n').length;
     output = lastNLines(output, last);
@@ -87,21 +85,19 @@ export async function viewApplicationLogs(args) {
     }
   }
 
-  // Step 3: Truncate if still too long (and no 'last' specified)
   if (!last) {
     const result = truncateLinesWithSummary(output);
     output = result.text;
     summaryParts.push(result.summary);
   }
 
-  // Build response with summary header
   const summary = summaryParts.length > 0 ? `[${summaryParts.join(', ')}]\n\n` : '';
 
   return {
-    content: [{ type: 'text', text: summary + output }],
+    content: [{ type: 'text', text: summary + output }]
   };
 }
 
 export const LOGS_HANDLERS = {
-  view_application_logs: viewApplicationLogs,
+  view_application_logs: viewApplicationLogs
 };

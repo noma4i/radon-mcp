@@ -2,8 +2,8 @@ import { describe, test, expect } from 'bun:test';
 import { DEVICE_TOOLS, DEVICE_HANDLERS } from '../src/tools/device.js';
 
 describe('device tools', () => {
-  test('exports 2 tools', () => {
-    expect(DEVICE_TOOLS.length).toBe(2);
+  test('exports 1 tool', () => {
+    expect(DEVICE_TOOLS.length).toBe(1);
   });
 
   test('view_screenshot tool schema', () => {
@@ -16,47 +16,21 @@ describe('device tools', () => {
     expect(tool.inputSchema.type).toBe('object');
   });
 
-  test('reload_application tool schema', () => {
+  test('reload_application is removed', () => {
     const tool = DEVICE_TOOLS.find(t => t.name === 'reload_application');
-
-    expect(tool).toBeDefined();
-    expect(tool.inputSchema.properties.reloadMethod).toBeDefined();
-    expect(tool.inputSchema.properties.reloadMethod.enum).toEqual([
-      'reloadJs',
-      'restartProcess',
-      'rebuild',
-    ]);
-    expect(tool.inputSchema.properties.reloadMethod.default).toBe('reloadJs');
+    expect(tool).toBeUndefined();
   });
 
   test('handlers are exported', () => {
     expect(DEVICE_HANDLERS).toHaveProperty('view_screenshot');
-    expect(DEVICE_HANDLERS).toHaveProperty('reload_application');
+    expect(DEVICE_HANDLERS).not.toHaveProperty('reload_application');
     expect(typeof DEVICE_HANDLERS.view_screenshot).toBe('function');
-    expect(typeof DEVICE_HANDLERS.reload_application).toBe('function');
   });
 
   test('tool descriptions contain workflow info', () => {
     const screenshot = DEVICE_TOOLS.find(t => t.name === 'view_screenshot');
-    const reload = DEVICE_TOOLS.find(t => t.name === 'reload_application');
 
     expect(screenshot.description).toContain('WORKFLOW');
     expect(screenshot.description).toContain('WHEN TO USE');
-    expect(reload.description).toContain('WORKFLOW');
-    expect(reload.description).toContain('WHEN TO USE');
-  });
-});
-
-describe('reload_application handler', () => {
-  test('returns correct method labels', () => {
-    const getMethodLabel = (method) => {
-      return method === 'reloadJs' ? 'Fast Refresh'
-        : method === 'restartProcess' ? 'Process Restart'
-        : 'Full Rebuild';
-    };
-
-    expect(getMethodLabel('reloadJs')).toBe('Fast Refresh');
-    expect(getMethodLabel('restartProcess')).toBe('Process Restart');
-    expect(getMethodLabel('rebuild')).toBe('Full Rebuild');
   });
 });

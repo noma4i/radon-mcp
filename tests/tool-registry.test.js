@@ -2,8 +2,8 @@ import { describe, test, expect } from 'bun:test';
 import { ALL_TOOLS, getToolHandler, getToolDefinitions } from '../src/lib/tool-registry.js';
 
 describe('tool-registry', () => {
-  test('exports 12 tools', () => {
-    expect(ALL_TOOLS.length).toBe(12);
+  test('exports 11 tools', () => {
+    expect(ALL_TOOLS.length).toBe(11);
   });
 
   test('all tools have required fields', () => {
@@ -43,10 +43,14 @@ describe('tool-registry', () => {
 
     expect(toolNames).toContain('view_screenshot');
     expect(toolNames).toContain('view_application_logs');
-    expect(toolNames).toContain('reload_application');
     expect(toolNames).toContain('get_library_description');
     expect(toolNames).toContain('query_documentation');
     expect(toolNames).toContain('check_system_health');
+  });
+
+  test('reload_application is not registered', () => {
+    const toolNames = ALL_TOOLS.map(t => t.name);
+    expect(toolNames).not.toContain('reload_application');
   });
 
   test('view_application_logs has filter and last params', () => {
@@ -59,16 +63,6 @@ describe('tool-registry', () => {
     expect(props.last.type).toBe('number');
   });
 
-  test('reload_application has reloadMethod param', () => {
-    const tool = ALL_TOOLS.find(t => t.name === 'reload_application');
-    const props = tool.inputSchema.properties;
-
-    expect(props).toHaveProperty('reloadMethod');
-    expect(props.reloadMethod.enum).toContain('reloadJs');
-    expect(props.reloadMethod.enum).toContain('restartProcess');
-    expect(props.reloadMethod.enum).toContain('rebuild');
-  });
-
   test('get_library_description requires library_npm_name', () => {
     const tool = ALL_TOOLS.find(t => t.name === 'get_library_description');
 
@@ -79,7 +73,6 @@ describe('tool-registry', () => {
     const toolsWithRelated = [
       'view_screenshot',
       'view_application_logs',
-      'reload_application',
       'get_library_description',
       'query_documentation',
       'check_system_health',

@@ -2,8 +2,8 @@ import { describe, test, expect } from 'bun:test';
 import { ALL_TOOLS, getToolHandler, getToolDefinitions } from '../src/lib/tool-registry.js';
 
 describe('tool-registry', () => {
-  test('exports 6 tools', () => {
-    expect(ALL_TOOLS.length).toBe(6);
+  test('exports 12 tools', () => {
+    expect(ALL_TOOLS.length).toBe(12);
   });
 
   test('all tools have required fields', () => {
@@ -76,13 +76,7 @@ describe('tool-registry', () => {
   });
 
   test('tool descriptions include RELATED TOOLS section', () => {
-    const toolsWithRelated = [
-      'view_screenshot',
-      'view_application_logs',
-      'reload_application',
-      'get_library_description',
-      'query_documentation',
-    ];
+    const toolsWithRelated = ['view_screenshot', 'view_application_logs', 'reload_application', 'get_library_description', 'query_documentation'];
 
     for (const name of toolsWithRelated) {
       const tool = ALL_TOOLS.find(t => t.name === name);
